@@ -64,15 +64,17 @@ export default function Dashboard() {
             <div className="mt-4 md:mt-0 flex space-x-3">
               <Button 
                 onClick={() => setIsComplaintFormOpen(true)}
-                className="inline-flex items-center px-4 py-2 text-white bg-accent-500 hover:bg-accent-600"
+                className="inline-flex items-center px-4 py-2 text-white bg-accent-500 hover:bg-accent-600 font-medium text-base"
+                size="lg"
               >
-                <Plus className="mr-2 h-4 w-4" /> {t("newComplaint")}
+                <Plus className="mr-2 h-5 w-5" /> {t("newComplaint")}
               </Button>
               <Button 
                 onClick={() => setIsAlumniFormOpen(true)}
-                className="inline-flex items-center px-4 py-2 text-white bg-primary-500 hover:bg-primary-600"
+                className="inline-flex items-center px-4 py-2 text-white bg-primary-500 hover:bg-primary-600 font-medium text-base"
+                size="lg"
               >
-                <Users className="mr-2 h-4 w-4" /> {t("connectAlumni")}
+                <Users className="mr-2 h-5 w-5" /> {t("connectAlumni")}
               </Button>
             </div>
           </div>

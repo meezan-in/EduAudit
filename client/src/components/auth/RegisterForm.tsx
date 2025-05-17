@@ -381,8 +381,9 @@ export default function RegisterForm({ userType }: RegisterFormProps) {
         
         <Button
           type="submit"
-          className="w-full py-3 px-4 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500"
+          className="w-full py-3 px-4 bg-accent-500 hover:bg-accent-600 text-white font-medium text-base rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500"
           disabled={isLoading}
+          size="lg"
         >
           {isLoading ? "Registering..." : "Register"}
         </Button>

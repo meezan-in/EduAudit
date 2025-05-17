@@ -165,8 +165,9 @@ export default function LoginForm({ userType }: LoginFormProps) {
 
         <Button
           type="submit"
-          className={`w-full py-3 px-4 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${getLoginButtonClass()}`}
+          className={`w-full py-3 px-4 text-white font-medium text-base rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${getLoginButtonClass()}`}
           disabled={isLoading}
+          size="lg"
         >
           {isLoading ? "Logging in..." : t("login")}
         </Button>
