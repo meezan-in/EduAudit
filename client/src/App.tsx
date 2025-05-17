@@ -11,6 +11,7 @@ import Complaints from "@/pages/complaints";
 import ComplaintDetails from "@/pages/complaint-details";
 import AlumniConnect from "@/pages/alumni-connect";
 import Profile from "@/pages/profile";
+import Resources from "@/pages/resources";
 import SchoolDashboard from "@/pages/school-dashboard";
 import AuthorityDashboard from "@/pages/authority-dashboard";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
@@ -89,6 +90,14 @@ function AppRoutes() {
         {() => (
           <ProtectedRoute>
             <AlumniConnect />
+          </ProtectedRoute>
+        )}
+      </Route>
+      
+      <Route path="/resources">
+        {() => (
+          <ProtectedRoute>
+            <Resources />
           </ProtectedRoute>
         )}
       </Route>
