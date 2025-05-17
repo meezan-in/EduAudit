@@ -97,13 +97,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/register', async (req, res) => {
     try {
       const validatedData = insertUserSchema.parse(req.body);
-      const existingUser = await storage.getUserByUsername(validatedData.username);
       
+      // Check if username or email already exists
+      const existingUser = await storage.getUserByUsername(validatedData.username);
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
       
-      const user = await storage.createUser(validatedData);
+      const existingEmail = await storage.getUserByEmail(validatedData.email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+      
+      // Set defaults for null or undefined fields based on user type
+      const userData = {
+        ...validatedData,
+        district: validatedData.district || null,
+        schoolId: validatedData.schoolId || null,
+        schoolName: validatedData.schoolName || null,
+        classInfo: validatedData.classInfo || null,
+        designation: validatedData.designation || null,
+        phoneNumber: validatedData.phoneNumber || null,
+        profilePicture: validatedData.profilePicture || null
+      };
+      
+      // Specific validation based on user type
+      if (userData.userType === USER_TYPES.SCHOOL && !userData.schoolName) {
+        return res.status(400).json({ message: "School name is required for school admin accounts" });
+      }
+      
+      if (userData.userType === USER_TYPES.AUTHORITY && !userData.district) {
+        return res.status(400).json({ message: "District is required for authority accounts" });
+      }
+      
+      // Create user with proper defaults
+      const user = await storage.createUser(userData);
+      
+      // If this is a school admin, also create a school record if it doesn't exist
+      if (userData.userType === USER_TYPES.SCHOOL && userData.schoolName) {
+        try {
+          const schoolData = {
+            name: userData.schoolName,
+            district: userData.district || "Unknown",
+            category: "Government", // Default value, can be updated later
+            address: "",
+            pincode: "",
+            adminId: user.id,
+            contactPhone: userData.phoneNumber,
+            contactEmail: userData.email
+          };
+          
+          const school = await storage.createSchool(schoolData);
+          
+          // Update the user with the new schoolId
+          await storage.updateUser(user.id, { schoolId: school.id });
+        } catch (schoolError) {
+          console.error("Error creating school:", schoolError);
+          // Continue with registration even if school creation fails
+        }
+      }
+      
       // Automatically log the user in after registration
       req.login(user, (err) => {
         if (err) {
@@ -112,7 +165,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(201).json(user);
       });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(400).json({ message: "An unknown error occurred" });
+      }
     }
   });
 
@@ -232,10 +289,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/complaints', isAuthenticated, isUserType(USER_TYPES.STUDENT), async (req, res) => {
     try {
       const user = req.user as any;
+      
+      // Find the user's school ID - if not in user record, this needs to be resolved
+      if (!user.schoolId) {
+        return res.status(400).json({ message: "School ID is required. Please update your profile with your school information." });
+      }
+      
       const complaintData = {
         ...req.body,
         userId: user.id,
         district: user.district,
+        schoolId: user.schoolId, // Ensure schoolId is included
+        status: "pending", // Set initial status
         tokenId: `KA${new Date().getFullYear()}-${nanoid(4).toUpperCase()}`
       };
       
@@ -257,7 +322,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(complaint);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(400).json({ message: "An unknown error occurred" });
+      }
     }
   });
 
