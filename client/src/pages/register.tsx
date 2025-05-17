@@ -10,6 +10,16 @@ export default function Register() {
   const [, setLocation] = useLocation();
   const [userType, setUserType] = useState<"student" | "school" | "authority">("student");
   
+  // Get the tab from URL query param if any
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get("tab") as "student" | "school" | "authority" | null;
+    
+    if (tabParam && ["student", "school", "authority"].includes(tabParam)) {
+      setUserType(tabParam);
+    }
+  }, []);
+  
   // Redirect user if already authenticated
   useEffect(() => {
     if (isAuthenticated) {

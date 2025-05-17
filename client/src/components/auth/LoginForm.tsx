@@ -171,14 +171,12 @@ export default function LoginForm({ userType }: LoginFormProps) {
           {isLoading ? "Logging in..." : t("login")}
         </Button>
 
-        {userType === "student" && (
-          <div className="text-center text-sm text-neutral-600">
-            {t("noAccount")}{" "}
-            <a href="/register" className="text-accent-500 hover:underline">
-              {t("register")}
-            </a>
-          </div>
-        )}
+        <div className="text-center text-sm text-neutral-600">
+          {t("noAccount")}{" "}
+          <a href={`/register?tab=${userType}`} className="text-accent-500 hover:underline">
+            {t("register")}
+          </a>
+        </div>
       </form>
     </Form>
   );

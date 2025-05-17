@@ -12,13 +12,15 @@ interface AuthLayoutProps {
   activeTab: "student" | "school" | "authority";
   title: string;
   subtitle: string;
+  onTabChange?: (tab: "student" | "school" | "authority") => void;
 }
 
 export default function AuthLayout({ 
   children, 
   activeTab, 
   title, 
-  subtitle 
+  subtitle,
+  onTabChange
 }: AuthLayoutProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -97,37 +99,28 @@ export default function AuthLayout({
           <div className="col-span-1 lg:col-span-2">
             <Card className="shadow-xl">
               <div className="flex border-b">
-                <Tabs defaultValue={activeTab} className="w-full">
+                <Tabs defaultValue={activeTab} className="w-full" onValueChange={(value) => onTabChange?.(value as "student" | "school" | "authority")}>
                   <TabsList className="w-full rounded-none bg-transparent border-b">
                     <TabsTrigger 
                       value="student" 
                       className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-accent-500 data-[state=active]:text-accent-500 rounded-none"
-                      asChild
                     >
-                      <Link href="/login?tab=student">
-                        <GraduationCap className="mr-2 h-4 w-4" />
-                        {t("loginStudent")}
-                      </Link>
+                      <GraduationCap className="mr-2 h-4 w-4" />
+                      {window.location.pathname.includes('register') ? 'Student' : t("loginStudent")}
                     </TabsTrigger>
                     <TabsTrigger 
                       value="school" 
                       className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-accent-500 data-[state=active]:text-accent-500 rounded-none"
-                      asChild
                     >
-                      <Link href="/login?tab=school">
-                        <School className="mr-2 h-4 w-4" />
-                        {t("loginSchool")}
-                      </Link>
+                      <School className="mr-2 h-4 w-4" />
+                      {window.location.pathname.includes('register') ? 'School Admin' : t("loginSchool")}
                     </TabsTrigger>
                     <TabsTrigger 
                       value="authority" 
                       className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-accent-500 data-[state=active]:text-accent-500 rounded-none"
-                      asChild
                     >
-                      <Link href="/login?tab=authority">
-                        <Landmark className="mr-2 h-4 w-4" />
-                        {t("loginAuthority")}
-                      </Link>
+                      <Landmark className="mr-2 h-4 w-4" />
+                      {window.location.pathname.includes('register') ? 'Authority' : t("loginAuthority")}
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,27 +22,76 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "../../hooks/useAuth";
 import { t } from "@/lib/i18n";
-import { KARNATAKA_DISTRICTS } from "@/lib/constants";
+import { KARNATAKA_DISTRICTS, USER_TYPES } from "@/lib/constants";
 
-export default function RegisterForm() {
+interface RegisterFormProps {
+  userType: "student" | "school" | "authority";
+}
+
+export default function RegisterForm({ userType }: RegisterFormProps) {
   const { register, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   
-  // Form schema
-  const formSchema = z.object({
+  // Base schema fields for all user types
+  const baseSchema = {
     username: z.string().min(3, "Username must be at least 3 characters"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
     email: z.string().email("Invalid email address"),
     name: z.string().min(1, "Full name is required"),
     district: z.string().min(1, "District is required"),
+    phoneNumber: z.string().optional(),
+  };
+  
+  // Student-specific schema fields
+  const studentSchema = {
+    ...baseSchema,
     schoolName: z.string().min(1, "School name is required"),
     classInfo: z.string().optional(),
-    phoneNumber: z.string().optional(),
-  }).refine(data => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+  };
+  
+  // School-specific schema fields
+  const schoolSchema = {
+    ...baseSchema,
+    schoolName: z.string().min(1, "School name is required"),
+    address: z.string().optional(),
+    pincode: z.string().optional(),
+    category: z.string().optional(),
+  };
+  
+  // Authority-specific schema fields
+  const authoritySchema = {
+    ...baseSchema,
+    designation: z.string().min(1, "Designation is required"),
+  };
+  
+  // Select schema based on user type
+  const getFormSchema = () => {
+    switch (userType) {
+      case "student":
+        return z.object(studentSchema).refine(data => data.password === data.confirmPassword, {
+          message: "Passwords do not match",
+          path: ["confirmPassword"],
+        });
+      case "school":
+        return z.object(schoolSchema).refine(data => data.password === data.confirmPassword, {
+          message: "Passwords do not match",
+          path: ["confirmPassword"],
+        });
+      case "authority":
+        return z.object(authoritySchema).refine(data => data.password === data.confirmPassword, {
+          message: "Passwords do not match",
+          path: ["confirmPassword"],
+        });
+      default:
+        return z.object(studentSchema).refine(data => data.password === data.confirmPassword, {
+          message: "Passwords do not match",
+          path: ["confirmPassword"],
+        });
+    }
+  };
+  
+  const formSchema = getFormSchema();
 
   // Form definition
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,25 +103,47 @@ export default function RegisterForm() {
       email: "",
       name: "",
       district: "",
-      schoolName: "",
-      classInfo: "",
       phoneNumber: "",
+      ...(userType === "student" ? {
+        schoolName: "",
+        classInfo: "",
+      } : {}),
+      ...(userType === "school" ? {
+        schoolName: "",
+        address: "",
+        pincode: "",
+        category: "",
+      } : {}),
+      ...(userType === "authority" ? {
+        designation: "",
+      } : {}),
     },
   });
+  
+  // Reset form when user type changes
+  useEffect(() => {
+    form.reset();
+  }, [userType, form]);
 
   // Form submission handler
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: any) => {
     const { confirmPassword, ...userData } = values;
     
     const registrationData = {
       ...userData,
-      userType: "student" as const,
+      userType,
     };
     
     const success = await register(registrationData);
     
     if (success) {
-      setLocation("/dashboard");
+      if (userType === USER_TYPES.STUDENT) {
+        setLocation("/dashboard");
+      } else if (userType === USER_TYPES.SCHOOL) {
+        setLocation("/school-dashboard");
+      } else if (userType === USER_TYPES.AUTHORITY) {
+        setLocation("/authority-dashboard");
+      }
     }
   };
 
@@ -129,7 +200,7 @@ export default function RegisterForm() {
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number (Optional)</FormLabel>
+                <FormLabel>Phone Number {userType !== "student" ? "" : "(Optional)"}</FormLabel>
                 <FormControl>
                   <Input placeholder="Your phone number" {...field} />
                 </FormControl>
@@ -168,34 +239,115 @@ export default function RegisterForm() {
             )}
           />
           
+          {userType === "authority" ? (
+            <FormField
+              control={form.control}
+              name="designation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Designation</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your official designation" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <FormField
+              control={form.control}
+              name="schoolName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("school")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your school name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
+        
+        {userType === "student" && (
           <FormField
             control={form.control}
-            name="schoolName"
+            name="classInfo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("school")}</FormLabel>
+                <FormLabel>{t("classInfo")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your school name" {...field} />
+                  <Input placeholder="E.g. Class 10A" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+        )}
         
-        <FormField
-          control={form.control}
-          name="classInfo"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("classInfo")}</FormLabel>
-              <FormControl>
-                <Input placeholder="E.g. Class 10A" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {userType === "school" && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>School Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="School's full address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="pincode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pincode</FormLabel>
+                    <FormControl>
+                      <Input placeholder="School's pincode" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>School Category</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select school category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Government">Government</SelectItem>
+                      <SelectItem value="Government Aided">Government Aided</SelectItem>
+                      <SelectItem value="Private">Private</SelectItem>
+                      <SelectItem value="International">International</SelectItem>
+                      <SelectItem value="Residential">Residential</SelectItem>
+                      <SelectItem value="Special Education">Special Education</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
