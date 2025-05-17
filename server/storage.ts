@@ -22,6 +22,7 @@ export interface IStorage {
   // School operations
   getSchoolById(id: number): Promise<School | undefined>;
   getSchoolsByDistrict(district: string): Promise<School[]>;
+  getAllSchools(): Promise<School[]>;
   createSchool(school: InsertSchool): Promise<School>;
   updateSchool(id: number, schoolData: Partial<School>): Promise<School | undefined>;
   
@@ -132,6 +133,10 @@ export class MemStorage implements IStorage {
 
   async getSchoolsByDistrict(district: string): Promise<School[]> {
     return Array.from(this.schools.values()).filter(school => school.district === district);
+  }
+  
+  async getAllSchools(): Promise<School[]> {
+    return Array.from(this.schools.values());
   }
 
   async createSchool(schoolData: InsertSchool): Promise<School> {
