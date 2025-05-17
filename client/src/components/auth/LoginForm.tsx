@@ -175,7 +175,7 @@ export default function LoginForm({ userType }: LoginFormProps) {
           <div className="text-center text-sm text-neutral-600">
             {t("noAccount")}{" "}
             <a href="/register" className="text-accent-500 hover:underline">
-              {t("register")} {t("here")}
+              {t("register")}
             </a>
           </div>
         )}

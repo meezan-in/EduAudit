@@ -88,10 +88,8 @@ export default function Dashboard() {
         <div className="mt-6 px-4 sm:px-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-neutral-900">{t("recentComplaints")}</h3>
-            <Link href="/complaints">
-              <a className="text-sm font-medium text-accent-500 hover:text-accent-600">
-                {t("viewAll")}
-              </a>
+            <Link href="/complaints" className="text-sm font-medium text-accent-500 hover:text-accent-600">
+              {t("viewAll")}
             </Link>
           </div>
           
@@ -106,31 +104,29 @@ export default function Dashboard() {
               {complaints && complaints.length > 0 ? (
                 <ul className="divide-y divide-neutral-200 border rounded-md overflow-hidden">
                   {complaints.slice(0, 3).map((complaint: any) => (
-                    <Link key={complaint.id} href={`/complaints/${complaint.id}`}>
-                      <a className="block hover:bg-neutral-50">
-                        <div className="px-4 py-4 sm:px-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <p className="text-sm font-medium text-accent-500 truncate">
-                                {complaint.title}
-                              </p>
-                              <div className="ml-2 flex-shrink-0 flex">
-                                <Badge 
-                                  variant="secondary"
-                                  className={`${STATUS_COLORS[complaint.status as keyof typeof STATUS_COLORS].bg} ${STATUS_COLORS[complaint.status as keyof typeof STATUS_COLORS].text}`}
-                                >
-                                  {t(complaint.status as any)}
-                                </Badge>
-                              </div>
-                            </div>
+                    <Link key={complaint.id} href={`/complaints/${complaint.id}`} className="block hover:bg-neutral-50">
+                      <div className="px-4 py-4 sm:px-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <p className="text-sm font-medium text-accent-500 truncate">
+                              {complaint.title}
+                            </p>
                             <div className="ml-2 flex-shrink-0 flex">
-                              <p className="text-sm text-neutral-500">
-                                Token: <span className="font-medium">{complaint.tokenId}</span>
-                              </p>
+                              <Badge 
+                                variant="secondary"
+                                className={`${STATUS_COLORS[complaint.status as keyof typeof STATUS_COLORS].bg} ${STATUS_COLORS[complaint.status as keyof typeof STATUS_COLORS].text}`}
+                              >
+                                {t(complaint.status as any)}
+                              </Badge>
                             </div>
                           </div>
+                          <div className="ml-2 flex-shrink-0 flex">
+                            <p className="text-sm text-neutral-500">
+                              Token: <span className="font-medium">{complaint.tokenId}</span>
+                            </p>
+                          </div>
                         </div>
-                      </a>
+                      </div>
                     </Link>
                   ))}
                 </ul>
@@ -157,10 +153,8 @@ export default function Dashboard() {
         <div className="mt-6 px-4 sm:px-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-neutral-900">{t("connectAlumni")}</h3>
-            <Link href="/alumni-connect">
-              <a className="text-sm font-medium text-accent-500 hover:text-accent-600">
-                {t("findMoreAlumni")}
-              </a>
+            <Link href="/alumni-connect" className="text-sm font-medium text-accent-500 hover:text-accent-600">
+              {t("findMoreAlumni")}
             </Link>
           </div>
           
@@ -234,8 +228,68 @@ export default function Dashboard() {
         </div>
 
         {/* District Insights */}
-        <div className="mt-6 px-4 sm:px-6 mb-24 sm:mb-0">
+        <div className="mt-6 px-4 sm:px-6">
           <DistrictInsights />
+        </div>
+
+        {/* Team Information */}
+        <div className="mt-8 px-4 sm:px-6 mb-24 sm:mb-16">
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div className="px-4 py-5 sm:px-6 bg-gradient-to-r from-primary-500 to-accent-500">
+              <h3 className="text-lg leading-6 font-medium text-white">Developed by EduPulse Innovators</h3>
+              <p className="mt-1 max-w-2xl text-sm text-white opacity-90">
+                A team dedicated to improving Karnataka's educational ecosystem
+              </p>
+            </div>
+            <div className="border-t border-gray-200">
+              <dl>
+                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Team Name</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">EduPulse Innovators</dd>
+                </div>
+                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Project</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">EduAudit: Karnataka Educational Complaint Management System</dd>
+                </div>
+                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Key Features</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <ul className="border border-gray-200 rounded-md divide-y divide-gray-200">
+                      <li className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                        <div className="w-0 flex-1 flex items-center">
+                          <span className="ml-2 flex-1 w-0 truncate">Complaint Management System</span>
+                        </div>
+                      </li>
+                      <li className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                        <div className="w-0 flex-1 flex items-center">
+                          <span className="ml-2 flex-1 w-0 truncate">AI-Powered Complaint Analysis</span>
+                        </div>
+                      </li>
+                      <li className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                        <div className="w-0 flex-1 flex items-center">
+                          <span className="ml-2 flex-1 w-0 truncate">Alumni Connect Platform</span>
+                        </div>
+                      </li>
+                      <li className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                        <div className="w-0 flex-1 flex items-center">
+                          <span className="ml-2 flex-1 w-0 truncate">Multi-level User Access (Student, School, Authority)</span>
+                        </div>
+                      </li>
+                      <li className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                        <div className="w-0 flex-1 flex items-center">
+                          <span className="ml-2 flex-1 w-0 truncate">District-level Education Analytics</span>
+                        </div>
+                      </li>
+                    </ul>
+                  </dd>
+                </div>
+                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Hackathon Entry</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Karnataka Educational Innovation Challenge 2023</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
         </div>
 
         {/* Complaint Form Modal */}
