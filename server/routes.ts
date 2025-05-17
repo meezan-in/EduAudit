@@ -294,16 +294,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const user = req.user as any;
       
-      // Find the user's school ID - if not in user record, this needs to be resolved
-      if (!user.schoolId) {
-        return res.status(400).json({ message: "School ID is required. Please update your profile with your school information." });
+      // Get schoolId from request body
+      if (!req.body.schoolId) {
+        return res.status(400).json({ message: "School ID is required. Please select a school for your complaint." });
+      }
+      
+      // Convert string schoolId to number
+      const schoolId = parseInt(req.body.schoolId, 10);
+      
+      // Get school information to get the district
+      const school = await storage.getSchoolById(schoolId);
+      if (!school) {
+        return res.status(400).json({ message: "Selected school not found. Please choose a valid school." });
       }
       
       const complaintData = {
         ...req.body,
         userId: user.id,
-        district: user.district,
-        schoolId: user.schoolId, // Ensure schoolId is included
+        district: school.district, // Use the school's district
+        schoolId: schoolId, // Use the schoolId from the form
         status: "pending", // Set initial status
         tokenId: `KA${new Date().getFullYear()}-${nanoid(4).toUpperCase()}`
       };

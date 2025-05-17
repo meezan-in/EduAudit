@@ -44,28 +44,39 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       .toUpperCase();
   };
 
-  const navLinks = [
-    { 
-      href: "/dashboard", 
-      label: t("dashboard"), 
-      icon: <LayoutDashboard className="h-5 w-5" />
-    },
-    { 
-      href: "/complaints", 
-      label: t("complaints"), 
-      icon: <FileText className="h-5 w-5" /> 
-    },
-    { 
-      href: "/alumni-connect", 
-      label: t("alumniConnect"), 
-      icon: <Users className="h-5 w-5" /> 
-    },
-    { 
-      href: "/resources", 
-      label: t("resources"), 
-      icon: <Book className="h-5 w-5" /> 
-    },
-  ];
+  // Create navigation links based on user type
+  const getNavLinks = () => {
+    const baseLinks = [
+      { 
+        href: "/dashboard", 
+        label: t("dashboard"), 
+        icon: <LayoutDashboard className="h-5 w-5" />,
+        showFor: ["student", "school", "authority"]
+      },
+      { 
+        href: "/complaints", 
+        label: t("complaints"), 
+        icon: <FileText className="h-5 w-5" />,
+        showFor: ["student", "school", "authority"]
+      },
+      { 
+        href: "/alumni-connect", 
+        label: t("alumniConnect"), 
+        icon: <Users className="h-5 w-5" />,
+        showFor: ["student"] // Only show for students
+      },
+      { 
+        href: "/resources", 
+        label: t("resources"), 
+        icon: <Book className="h-5 w-5" />,
+        showFor: ["student", "school", "authority"]
+      },
+    ];
+    
+    return baseLinks.filter(link => link.showFor.includes(user?.userType || ""));
+  };
+  
+  const navLinks = getNavLinks();
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">

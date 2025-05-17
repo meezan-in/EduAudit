@@ -47,9 +47,15 @@ export default function ComplaintForm({ isOpen, onClose }: ComplaintFormProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
 
+  // Fetch available schools
+  const { data: schools, isLoading: schoolsLoading } = useQuery({
+    queryKey: ['/api/schools'],
+  });
+
   // Form schema
   const formSchema = z.object({
     category: z.string().min(1, { message: "Please select a category" }),
+    schoolId: z.string().min(1, { message: "Please select a school" }),
     title: z.string().min(5, { 
       message: "Title must be at least 5 characters" 
     }).max(100, { 
@@ -68,6 +74,7 @@ export default function ComplaintForm({ isOpen, onClose }: ComplaintFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       category: "",
+      schoolId: "",
       title: "",
       description: "",
       evidence: "",
@@ -160,30 +167,57 @@ export default function ComplaintForm({ isOpen, onClose }: ComplaintFormProps) {
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("category")}</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {COMPLAINT_CATEGORIES.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {t(`${category.toLowerCase().replace(/\s+/g, '')}Category` as any)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("category")}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {COMPLAINT_CATEGORIES.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {t(`${category.toLowerCase().replace(/\s+/g, '')}Category` as any)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="schoolId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select School</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your school" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {schools && Array.isArray(schools) && schools.map((school: any) => (
+                          <SelectItem key={school.id} value={String(school.id)}>
+                            {school.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <FormField
               control={form.control}
