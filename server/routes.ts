@@ -244,10 +244,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           break;
         case USER_TYPES.AUTHORITY:
           // Authority can see complaints by district (if specified) or all
-          if (req.query.district) {
+          if (req.query.district && req.query.district !== 'all') {
             complaints = await storage.getComplaintsByDistrict(req.query.district as string);
+          } else if (user.district && !req.query.district) {
+            // If authority has a district set but no query parameter, show only their district
+            complaints = await storage.getComplaintsByDistrict(user.district);
           } else {
-            // Get complaints from multiple districts
+            // Get all complaints from all districts
+            complaints = [];
             const districtStats = await storage.getAllDistrictStats();
             for (const stats of districtStats) {
               const districtComplaints = await storage.getComplaintsByDistrict(stats.district);

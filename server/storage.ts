@@ -171,12 +171,19 @@ export class MemStorage implements IStorage {
   async createComplaint(complaintData: InsertComplaint): Promise<Complaint> {
     const id = this.complaintId++;
     const now = new Date();
+    
+    // Ensure all required fields have values with proper defaults
     const complaint: Complaint = { 
       ...complaintData, 
       id, 
+      status: complaintData.status || "pending", 
+      assignedToId: complaintData.assignedToId || null,
+      evidence: complaintData.evidence || null,
+      aiAnalysis: complaintData.aiAnalysis || null,
       createdAt: now,
       updatedAt: now
     };
+    
     this.complaints.set(id, complaint);
     
     // Update district stats
