@@ -640,6 +640,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       complaintStatus: Object.values(COMPLAINT_STATUS)
     });
   });
+  
+  // Schools API endpoint for complaint form dropdown
+  app.get('/api/schools', async (req, res) => {
+    try {
+      const schools = await storage.getAllSchools();
+      res.json(schools);
+    } catch (error) {
+      console.error("Failed to fetch schools:", error);
+      res.status(500).json({ message: "Failed to fetch schools list" });
+    }
+  });
 
   return httpServer;
 }
